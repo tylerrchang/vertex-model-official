@@ -65,7 +65,7 @@ def create_vertices(vert_list):
 
     return vertices
 
-def create_cells(all_vertices, poly_list):
+def create_cells(all_vertices, poly_list, data):
     """
     Makes list of cells
 
@@ -81,7 +81,7 @@ def create_cells(all_vertices, poly_list):
         for v in vert_list:
             polygon_vertex_objects.append(all_vertices[v])
 
-        cell_list.append(cell.Cell(polygon_vertex_objects))
+        cell_list.append(cell.Cell(polygon_vertex_objects, data))
 
     return cell_list
 
@@ -94,7 +94,13 @@ def read_data(vert_file_path, poly_file_path):
     vert_obj_list = create_vertices(vert_list)
 
     cell_indices_list = read_polygon_vertices(poly_file_path)
-    cell_list = create_cells(vert_obj_list, cell_indices_list)
 
-    return data_holder.Data_Holder(vert_obj_list, cell_list)
+    # there is a bit of a circular dependence here -- must initialize object first then call create_cells
+    data = data_holder.Data_Holder(vert_obj_list, None)
+
+    cell_list = create_cells(vert_obj_list, cell_indices_list, data)
+
+    data.cell_list = cell_list
+
+    return data
 

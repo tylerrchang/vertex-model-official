@@ -19,15 +19,15 @@ class Cell:
         Creates polygon, calculates area and perimeter
         """
         self.fake_polygon = geometry.create_polygon(self.vert_obj_list, self.data)
-        self.area = self.__calc_area()
-        self.perimeter = self.__calc_perimeter()
+        self.__calc_area()
+        self.__calc_perimeter()
 
     def __calc_area(self):
         area = 0
         coords = self.fake_polygon
         for i in range(len(coords)):
             area += coords[i][0] * coords[(i + 1) % len(coords)][1] - coords[i][1] * coords[(i + 1) % len(coords)][0]
-        area /= 2
+        self.area = abs(area) / 2.0
     
     def __calc_perimeter(self):
         perimeter = 0
@@ -37,7 +37,7 @@ class Cell:
                                                        self.fake_polygon[-1])
             perimeter += geometry.distance_formula(self.fake_polygon[i], 
                                                        self.fake_polygon[i + 1])
-        return perimeter
+        self.perimeter = perimeter
 
     def get_area(self):
         return self.area
