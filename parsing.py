@@ -1,4 +1,3 @@
-from shapely.geometry import Polygon
 import vertex
 import cell
 import data_holder
@@ -85,7 +84,7 @@ def create_cells(all_vertices, poly_list, data):
 
     return cell_list
 
-def read_data(vert_file_path, poly_file_path):
+def read_data(vert_file_path, poly_file_path, lx = 5, ly = 5):
     """
     Reads all data and returns a Data_Holder object
     """
@@ -96,7 +95,7 @@ def read_data(vert_file_path, poly_file_path):
     cell_indices_list = read_polygon_vertices(poly_file_path)
 
     # there is a bit of a circular dependence here -- must initialize object first then call create_cells
-    data = data_holder.Data_Holder(vert_obj_list, None)
+    data = data_holder.Data_Holder(vert_obj_list, None, lx, ly)
 
     cell_list = create_cells(vert_obj_list, cell_indices_list, data)
 
