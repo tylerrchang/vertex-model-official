@@ -24,7 +24,6 @@ def read_vertices(filepath):
         vertex = (float(coords[0]), float(coords[1]))
         vert_list.append(vertex)
 
-    print(vert_list)
     return vert_list
 
 def read_polygon_vertices(filepath):
@@ -101,5 +100,17 @@ def read_data(vert_file_path, poly_file_path, lx = 5, ly = 5):
 
     data.cell_list = cell_list
 
+    vert_adjcent_cells = {}
+
+    for v in vert_obj_list:
+        vert_adjcent_cells[v] = []
+        for cell_ in data.cell_list:
+            for v_cell in cell_.vert_obj_list:
+                if v == v_cell:
+                    vert_adjcent_cells[v].append(cell_)
+                    break
+
+    data.vert_adjcent_cells = vert_adjcent_cells
+    data.setAP()
     return data
 
