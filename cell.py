@@ -1,4 +1,5 @@
 import geometry
+import numpy as np
 
 class Cell:
     def __init__(self, vert_list, data):
@@ -21,6 +22,7 @@ class Cell:
         self.fake_polygon = geometry.create_polygon(self.vert_obj_list, self.data)
         self.__calc_area()
         self.__calc_perimeter()
+        self.__calc_center()
 
     def __calc_area(self):
         area = 0
@@ -38,6 +40,14 @@ class Cell:
             perimeter += geometry.distance_formula(self.fake_polygon[i], 
                                                        self.fake_polygon[i + 1])
         self.perimeter = perimeter
+
+    def __calc_center(self):
+        x = 0
+        y = 0
+        for v in self.fake_polygon:
+            x += v[0]
+            y += v[1]
+        self.center = np.array([x, y]) / len(self.fake_polygon)
 
     def get_area(self):
         return self.area

@@ -1,5 +1,6 @@
 import vertex
 import data_holder
+import numpy as np
 
 def __vertex_boundary_check(v1, v2, data):
     """
@@ -32,3 +33,28 @@ def create_polygon(vert_list, data):
 
 def distance_formula(v1, v2):
     return ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 ) ** (1 / 2)
+
+def distance_formula_boundary_check(v1, v2, data):
+    v2 = __vertex_boundary_check(v1, v2, data)
+    return distance_formula(v1, v2)
+
+def midpoint_formula(v1, v2):
+    return np.array([(v1[0] + v2[0]) / 2, (v1[1] + v2[1]) / 2])
+
+def midpoint_formula_boundary_check(v1, v2, data):
+    v2 = __vertex_boundary_check(v1, v2, data)
+    return midpoint_formula(v1, v2) % np.array([data.lx, data.ly])
+
+def unit_vector_boundary_check(v1, v2, data):
+    v2 = __vertex_boundary_check(v1, v2, data)
+    vector = np.array([v2[0] - v1[0], v2[1] - v1[1]])
+    magnitude = (vector ** 2).sum() ** (1 / 2)
+    return vector / magnitude
+
+def find_shared_edge(cell1, cell2, v1):
+    for cell1_vert in cell1.vert_obj_list:
+        if cell1_vert != v1:
+            for cell2_vert in cell2.vert_obj_list:
+                if cell1_vert == cell2_vert:
+                    return (v1, cell1_vert)
+    raise ValueError
