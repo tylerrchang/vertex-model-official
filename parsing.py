@@ -94,7 +94,7 @@ def read_data(vert_file_path, poly_file_path, lx = 5, ly = 5, KA = 1, KP = 1, dt
     cell_indices_list = read_polygon_vertices(poly_file_path)
 
     # there is a bit of a circular dependence here -- must initialize object first then call create_cells
-    data = data_holder.Data_Holder(vert_obj_list, None, lx, ly, KA, KP)
+    data = data_holder.Data_Holder(vert_obj_list, None, lx, ly, KA, KP, dt)
 
     cell_list = create_cells(vert_obj_list, cell_indices_list, data)
 

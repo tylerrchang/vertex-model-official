@@ -8,8 +8,8 @@ def move_vertices(vert_list, data):
     forces = calc_forces(vert_list, data) # returns a list
     for vert, force in zip(vert_list, forces):
         # add force and check for out of bounds
-        vert.x = (vert.x + force[0] * data.dt) % data.lx
-        vert.y = (vert.y + force[1] * data.dt) % data.ly
+        vert.x = (vert.x - force[0] * data.dt) % data.lx
+        vert.y = (vert.y - force[1] * data.dt) % data.ly
     # check for T1 transitions
         # lots of checks 
     # set new parameters
