@@ -56,20 +56,38 @@ def distance_formula(v1, v2):
     return ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 ) ** (1 / 2)
 
 def distance_formula_boundary_check(v1, v2, data):
-    v2 = __return_second_vertex(v1, v2, data)
-    return distance_formula(v1, v2)
+    # compute distance between points
+    xdist = v1[0] - v2[0]
+    ydist = v1[1] - v1[1]
+    # if xdist is greater than half of lx, then the round() term becomes a 1
+    # we then have the signed distance between the two points
+    # similar logic for dy
+    dx = xdist - data.lx * round(xdist / data.lx)
+    dy = ydist - data.ly * round(ydist / data.ly)
+    # then we can return the distance formula using dx and dy
+    return (dx ** 2 + dy ** 2) ** (1 / 2)
 
-def midpoint_formula(v1, v2):
-    return np.array([(v1[0] + v2[0]) / 2, (v1[1] + v2[1]) / 2])
+# def midpoint_formula(v1, v2):
+#     return np.array([(v1[0] + v2[0]) / 2, (v1[1] + v2[1]) / 2])
 
-def midpoint_formula_boundary_check(v1, v2, data):
-    v2 = __return_second_vertex(v1, v2, data)
-    return midpoint_formula(v1, v2) % np.array([data.lx, data.ly])
+# def midpoint_formula_boundary_check(v1, v2, data):
+#     v2 = __return_second_vertex(v1, v2, data)
+#     return midpoint_formula(v1, v2) % np.array([data.lx, data.ly])
 
 def unit_vector_boundary_check(v1, v2, data):
-    v2 = __return_second_vertex(v1, v2, data)
-    vector = np.array([v2[0] - v1[0], v2[1] - v1[1]])
-    magnitude = (vector ** 2).sum() ** (1 / 2)
+    temp = v1
+    v1 = v2
+    v2 = temp
+    # compute distance between points
+    xdist = v1[0] - v2[0]
+    ydist = v1[1] - v2[1]
+    # if xdist is greater than half of lx, then the round() term becomes a 1
+    # we then have the signed distance between the two points
+    # similar logic for dy
+    dx = xdist - data.lx * round(xdist / data.lx)
+    dy = ydist - data.ly * round(ydist / data.ly)
+    vector = np.array([dx, dy])
+    magnitude = ((vector ** 2).sum()) ** (1 / 2)
     return vector / magnitude
 
 def find_shared_edge(cell1, cell2, v1):
