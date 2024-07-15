@@ -4,6 +4,8 @@ import numpy as np
 
 def __vertex_boundary_check(v1, v2, data):
     """
+    DEPRECIATED
+    
     Takes 2 vertices and returns a list vertex of the second vertex if it
     needs adjustment
 
@@ -33,7 +35,7 @@ def create_polygon(vert_list, data):
         vertices.append([v.x, v.y])
 
     for i in range(len(vertices) - 1):
-        vertices[i + 1] = __vertex_boundary_check(vertices[i], vertices[i + 1], data)
+        vertices[i + 1] = __return_second_vertex(vertices[i], vertices[i + 1], data)
     
     return vertices
 
@@ -75,6 +77,9 @@ def distance_formula_boundary_check(v1, v2, data):
 #     return midpoint_formula(v1, v2) % np.array([data.lx, data.ly])
 
 def unit_vector_boundary_check(v1, v2, data):
+    """
+    from v1 to v2
+    """
     temp = v1
     v1 = v2
     v2 = temp
@@ -97,3 +102,15 @@ def find_shared_edge(cell1, cell2, v1):
                 if cell1_vert == cell2_vert:
                     return (v1, cell1_vert)
     raise ValueError
+
+def unit_vector_perp_to_edge(edge_vector, center_vector, data):
+    """
+    Takes a unit vector and rotates it 90 degrees, pointing outward from the center of the polygon.
+    Only used for polygons
+    """
+    # cross product of unit_vector and +z
+    x = 0 * 0 - edge_vector[1] * 1
+    y = -(0 * 0 - edge_vector[0] * 1)
+    dot_prod = x * center_vector[0] + y * center_vector[1]
+    new_vec = np.array([x, y]) * - (-1 if dot_prod < 0 else 1)
+    return new_vec

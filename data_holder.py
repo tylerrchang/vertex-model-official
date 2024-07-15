@@ -8,6 +8,8 @@ class Data_Holder:
         self.KA = KA
         self.KP = KP
         self.dt = dt
+        # testing
+        self.v = vert_list[28]
 
         # need to add parameters
         # this will prob expand out consturctor
