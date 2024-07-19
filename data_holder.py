@@ -9,10 +9,11 @@ class Data_Holder:
         self.KP = KP
         self.dt = dt
         # testing
-        self.v = vert_list[28]
+        # self.v = vert_list[28]
 
         # need to add parameters
         # this will prob expand out consturctor
     def setAP(self):
         self.A0 = self.lx * self.ly / len(self.cell_list)
-        self.P0 = (self.A0 / ((3 ** (3 / 2)) / 2)) ** 0.5
+        # formula for perimeter of retular hexagon with area above
+        self.P0 = (3 ** 0.25) * ((8 * self.A0) ** (0.5))

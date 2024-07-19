@@ -23,6 +23,7 @@ class Cell:
         self.__calc_area()
         self.__calc_perimeter()
         self.__calc_center()
+        self.__calc_random()
 
     def __calc_area(self):
         area = 0
@@ -54,3 +55,6 @@ class Cell:
 
     def get_perimeter(self):
         return self.perimeter
+    
+    def __calc_random(self):
+        pass

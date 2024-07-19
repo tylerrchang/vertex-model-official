@@ -75,20 +75,32 @@ def calc_forces(vert_list, data):
         forces.append(force)
     return forces
 
-def move_test(vert_list, data):
-    # vert_list_old = copy.deepcopy(vert_list)
-    forces = np.zeros([len(vert_list), 2])
-    forces[forces == 0] = -2.6 / data.dt  
-    for vert, force in zip(vert_list, forces):
-        # add force and check for out of bounds
-        vert.x = (vert.x - force[0] * data.dt) % data.lx
-        vert.y = (vert.y - force[1] * 0) % data.ly
-    # check for T1 transitions
-        # lots of checks 
-    # set new parameters
-    # 1. polygons need to get updated
-    for cell_ in data.cell_list:
-        cell_.create_cell_polygon()
+def calc_energy(data):
+    """
+    Computes the overall energy of the system using defined equation
+    """
+    total_energy = 0
+    for cell in data.cell_list:
+        total_energy += data.KA * (cell.area - data.A0) ** 2 + data.KP * \
+            (cell.perimeter - data.P0) ** 2
+        
+    return total_energy
+
+
+# def move_test(vert_list, data):
+#     # vert_list_old = copy.deepcopy(vert_list)
+#     forces = np.zeros([len(vert_list), 2])
+#     forces[forces == 0] = -2.6 / data.dt  
+#     for vert, force in zip(vert_list, forces):
+#         # add force and check for out of bounds
+#         vert.x = (vert.x - force[0] * data.dt) % data.lx
+#         vert.y = (vert.y - force[1] * 0) % data.ly
+#     # check for T1 transitions
+#         # lots of checks 
+#     # set new parameters
+#     # 1. polygons need to get updated
+#     for cell_ in data.cell_list:
+#         cell_.create_cell_polygon()
 
 # def calc_forces_b4(vert_list, data):
 #     forces = []
