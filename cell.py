@@ -1,11 +1,18 @@
 import geometry
 import numpy as np
+import math
 
 class Cell:
     def __init__(self, vert_list, data):
         self.vert_obj_list = vert_list
         self.data = data
 
+        # generate original direction of motion of random cell motion,
+        # however this is modified in the create cell polygon method
+
+        self.theta = np.random.uniform(0, 2 * math.pi)
+        self.rand_move_vector = [self.data.v0 * math.cos(self.theta), 
+                                 self.data.v0 * math.sin(self.theta)]
         # sets fake_polygon, area, and perimeter
         self.create_cell_polygon()
     
@@ -23,7 +30,7 @@ class Cell:
         self.__calc_area()
         self.__calc_perimeter()
         self.__calc_center()
-        self.__calc_random()
+        self.__calc_rand()
 
     def __calc_area(self):
         area = 0
@@ -56,5 +63,11 @@ class Cell:
     def get_perimeter(self):
         return self.perimeter
     
-    def __calc_random(self):
-        pass
+    def __calc_rand(self):
+        # made it -1 to 1 so cell can rotate either direction
+        self.theta = (self.theta + (np.random.uniform(-1, 1) * \
+                    (2 * self.data.D) ** (1 / 2) * (self.data.dt) ** (1 / 2))
+                    ) % (2 * math.pi)
+        self.rand_move_vector = [self.data.v0 * math.cos(self.theta), 
+                                 self.data.v0 * math.sin(self.theta)]
+            

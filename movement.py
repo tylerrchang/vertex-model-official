@@ -8,8 +8,18 @@ def move_vertices(vert_list, data):
     forces = calc_forces(vert_list, data) # returns a list
     for vert, force in zip(vert_list, forces):
         # add force and check for out of bounds
-        vert.x = (vert.x - force[0] * data.dt) % data.lx
-        vert.y = (vert.y - force[1] * data.dt) % data.ly
+        sum_x = 0
+        sum_y = 0
+        neighbor_count = len(data.vert_adjcent_cells[vert])
+        for cell in data.vert_adjcent_cells[vert]:
+            sum_x += cell.rand_move_vector[0]
+            sum_y += cell.rand_move_vector[1]
+        vert.x = (vert.x - force[0] * data.dt + 1 / neighbor_count * sum_x) % data.lx
+        vert.y = (vert.y - force[1] * data.dt + 1 / neighbor_count * sum_y) % data.ly
+        # no noise motion
+        # vert.x = (vert.x + 1 / neighbor_count * sum_x) % data.lx
+        # vert.y = (vert.y + 1 / neighbor_count * sum_y) % data.ly
+
     # check for T1 transitions
         # lots of checks 
     # set new parameters
@@ -86,6 +96,48 @@ def calc_energy(data):
         
     return total_energy
 
+def t1_transition_check(data):
+    done = []
+    __t1_transition_check(data, done)
+
+def __t1_transition_check(data, done):
+    # loop each cell
+    for cell in data.cell_list:
+        verts = cell.vert_obj_list
+        # loop over each edge
+        for i in range(len(verts)):
+            # print(len(verts), i, (i+1) % len(verts))
+            if geometry.distance_formula_boundary_check(verts[i], verts[(i+1) % len(verts)], data) <= data.min_d:
+                ids = id(verts[i]) + id(verts[(i+1) % len(verts)])
+                if ids not in done:
+                    done.append(ids)
+                    t1_transition(verts[i], verts[(i+1) % len(verts)], data)
+                    __t1_transition_check(data, done)
+                    return
+                # t1_transition_check(data)
+        # if edge follow suit
+
+def t1_transition(v1, v2, data):
+    print("t1 necessary", v1, v2, geometry.distance_formula_boundary_check(v1,v2,data))
+    geometry.rotate_90_degrees(v2, v1, data)
+    mod_cell_list = [None, None]
+    v = [v1, v2]
+    for i in range(2):
+        for cell in data.vert_adjcent_cells[v[i]]:
+            vert_list = cell.vert_obj_list
+            if v[(i + 1) % 2] not in vert_list:
+                vert_list.insert((vert_list.index(v[i]) + 1) % len(vert_list), v[(i + 1) % 2])
+                mod_cell_list[i] = cell
+                break
+
+    for i in range(2):
+        for cell in data.vert_adjcent_cells[v[i]]:
+            vert_list = cell.vert_obj_list
+            if cell != mod_cell_list[i] and vert_list[(vert_list.index(v[i]) + 1) % len(vert_list)] == v[(i + 1) % 2]:
+                vert_list.remove(v[i])
+                data.vert_adjcent_cells[v[i]].remove(cell)
+                data.vert_adjcent_cells[v[i]].append(mod_cell_list[(i + 1) % 2])
+                break
 
 # def move_test(vert_list, data):
 #     # vert_list_old = copy.deepcopy(vert_list)

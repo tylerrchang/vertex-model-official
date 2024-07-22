@@ -100,17 +100,18 @@ def read_data(vert_file_path, poly_file_path, lx = 5, ly = 5, KA = 1, KP = 1, dt
 
     data.cell_list = cell_list
 
-    vert_adjcent_cells = {}
+    data.set_vert_adjcent_cells()
+    # vert_adjcent_cells = {}
 
-    for v in vert_obj_list:
-        vert_adjcent_cells[v] = []
-        for cell_ in data.cell_list:
-            for v_cell in cell_.vert_obj_list:
-                if v == v_cell:
-                    vert_adjcent_cells[v].append(cell_)
-                    break
+    # for v in vert_obj_list:
+    #     vert_adjcent_cells[v] = []
+    #     for cell_ in data.cell_list:
+    #         for v_cell in cell_.vert_obj_list:
+    #             if v == v_cell:
+    #                 vert_adjcent_cells[v].append(cell_)
+    #                 break
 
-    data.vert_adjcent_cells = vert_adjcent_cells
+    # data.vert_adjcent_cells = vert_adjcent_cells
     data.setAP()
     return data
 

@@ -32,7 +32,7 @@ def create_polygon(vert_list, data):
     vertices = []
 
     for v in vert_list:
-        vertices.append([v.x, v.y])
+        vertices.append([v[0], v[1]])
 
     for i in range(len(vertices) - 1):
         vertices[i + 1] = __return_second_vertex(vertices[i], vertices[i + 1], data)
@@ -60,7 +60,7 @@ def distance_formula(v1, v2):
 def distance_formula_boundary_check(v1, v2, data):
     # compute distance between points
     xdist = v1[0] - v2[0]
-    ydist = v1[1] - v1[1]
+    ydist = v1[1] - v2[1]
     # if xdist is greater than half of lx, then the round() term becomes a 1
     # we then have the signed distance between the two points
     # similar logic for dy
@@ -114,3 +114,42 @@ def unit_vector_perp_to_edge(edge_vector, center_vector, data):
     dot_prod = x * center_vector[0] + y * center_vector[1]
     new_vec = np.array([x, y]) * - (-1 if dot_prod < 0 else 1)
     return new_vec
+
+# rotate 90 degrees
+# https://stackoverflow.com/questions/45701615/how-can-i-rotate-a-line-segment-around-its-center-by-90-degrees
+# find the center
+def rotate_90_degrees(v1, v2, data):
+    x1 = v1[0]
+    x2 = v2[0]
+    y1 = v1[1]
+    y2 = v2[1]
+
+    cx = (x1+x2)/2
+    cy = (y1+y2)/2
+
+    # move the line to center on the origin
+    x1-=cx
+    y1-=cy
+    x2-=cx
+    y2-=cy
+    # rotate both points
+    xtemp = x1
+    ytemp = y1
+    x1=-ytemp
+    y1=xtemp
+
+    xtemp = x2
+    ytemp = y2
+    x2=-ytemp
+    y2=xtemp
+
+    # move the center point back to where it was
+    x1+=cx
+    y1+=cy
+    x2+=cx
+    y2+=cy
+
+    v1.x = x1
+    v1.y = y1
+    v2.x = x2
+    v2.y = y2
