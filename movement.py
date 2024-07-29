@@ -1,0 +1,281 @@
+import vertex
+import copy
+import numpy as np
+import geometry
+
+def move_vertices(vert_list, data):
+    # vert_list_old = copy.deepcopy(vert_list)
+    forces = calc_forces(vert_list, data) # returns a list
+    for vert, force in zip(vert_list, forces):
+        # add force and check for out of bounds
+        sum_x = 0
+        sum_y = 0
+        neighbor_count = len(data.vert_adjcent_cells[vert])
+        for cell in data.vert_adjcent_cells[vert]:
+            sum_x += cell.rand_move_vector[0]
+            sum_y += cell.rand_move_vector[1]
+        vert.x = (vert.x - force[0] * data.dt + 1 / neighbor_count * sum_x * data.dt) % data.lx
+        vert.y = (vert.y - force[1] * data.dt + 1 / neighbor_count * sum_y * data.dt) % data.ly
+        # no noise motion
+        # vert.x = (vert.x + 1 / neighbor_count * sum_x) % data.lx
+        # vert.y = (vert.y + 1 / neighbor_count * sum_y) % data.ly
+
+    # check for T1 transitions
+        # lots of checks 
+    # set new parameters
+    # 1. polygons need to get updated
+    for cell_ in data.cell_list:
+        cell_.create_cell_polygon()
+
+
+def calc_forces(vert_list, data):
+    forces = []
+    # loop over all vertices and compute force for each
+    for v in vert_list:
+        force = np.zeros(2)
+        # use list of cells that corresponds to each vertex
+        comp_cells = data.vert_adjcent_cells[v]
+
+        # loop over each cell in list of cells corresponding to vertex
+        # and calc force from each
+        for i in range(len(comp_cells)):
+            # find shared edges between current cell and two cells that share
+            # the center vertex with it
+            # ASSUMPTION: each cell only borders 2 other cells that shared the
+            #    main vertex
+            s1 = geometry.find_shared_edge(comp_cells[i], comp_cells[(i + 1) % len(comp_cells)], v)
+            s2 = geometry.find_shared_edge(comp_cells[i], comp_cells[(i + 2) % len(comp_cells)], v)
+            # calculate da/dhijk
+            # calculate length of shared edge between 2 other cells
+            l1 = geometry.distance_formula_boundary_check(s1[0], s1[1], data)
+            l2 = geometry.distance_formula_boundary_check(s2[0], s2[1], data)
+
+            # calculate midpoint between two vertices of the shared edge of each
+            # of the 2 other cells
+            # this is used to help calculate unit vector
+            # mp1 = geometry.midpoint_formula_boundary_check(s1[0], s1[1])
+            # mp2 = geometry.midpoint_formula_boundary_check(s2[0], s2[1])
+            # calculate unit vector pointing away from the center of the cell
+            # that is perpendicular with the shared edge
+            # the line connecting the center of cells is always perp to edge
+
+            # calculate dp/dhijk
+            # calculate the unit vector pointing from the center vertex to the 
+            # other vertices making up the shared edges between current cell
+            t1 = geometry.unit_vector_boundary_check(v, s1[1], data)
+            t2 = geometry.unit_vector_boundary_check(v, s2[1], data)
+
+            # equation from paper
+            dp = -1 * (t1 + t2)
+
+            center_vertex_unit_vector = geometry.unit_vector_boundary_check(v, comp_cells[i].center, data)
+            n1 = geometry.unit_vector_perp_to_edge(t1, center_vertex_unit_vector, data)
+            n2 = geometry.unit_vector_perp_to_edge(t2, center_vertex_unit_vector, data)
+
+            # equation from paper
+            da = 1 / 2 * (l1 * n1 + l2 * n2)
+
+            # calculate force from specific cell
+            # equation from paper
+            de = (
+                2 * data.KA * (comp_cells[i].area - data.A0) * da + 
+                2 * data.KP * (comp_cells[i].perimeter - data.P0) * dp
+                )
+            force += de
+        forces.append(force)
+    return forces
+
+def calc_energy(data):
+    """
+    Computes the overall energy of the system using defined equation
+    """
+    total_energy = 0
+    for cell in data.cell_list:
+        total_energy += (cell.area/data.A0 - data.A0/data.A0) ** 2 + data.KP * \
+            (cell.perimeter/(data.A0 ** (1/2)) - data.P0/(data.A0 ** (1/2))) ** 2 / \
+            (data.A0 * data.KA)
+        
+    return total_energy
+
+def t1_transition_check_beta(data):
+    # find all necessary transitions
+    to_transition = {}
+    # loop each cell
+    for cell in data.cell_list:
+        verts = cell.vert_obj_list
+        # loop over each edge
+        for i in range(len(verts)):
+            # print(len(verts), i, (i+1) % len(verts))
+            if geometry.distance_formula_boundary_check(verts[i], verts[(i+1) % len(verts)], data) <= data.min_d:
+                ids = id(verts[i]) + id(verts[(i+1) % len(verts)])
+                if ids not in to_transition:
+                    to_transition[ids] = (verts[i],  verts[(i+1) % len(verts)])
+
+    # perform transitions
+    # print(to_transition)
+    for edge in to_transition:
+        verts = to_transition[edge]
+        t1_transition(verts[0], verts[1], data)
+
+def t1_transition_check(data, completed_transition):
+    # loop each cell
+    for cell in data.cell_list:
+        verts = cell.vert_obj_list
+        # print(verts)
+        # loop over each edge
+        for i in range(len(verts)):
+            # print(len(verts), i, (i+1) % len(verts))
+            if (
+                geometry.distance_formula_boundary_check(
+                    verts[i], verts[(i + 1) % len(verts)], data
+                )
+                <= data.min_d
+            ):
+                ids = id(verts[i]) + id(verts[(i + 1) % len(verts)])
+                if ids not in completed_transition:
+                    completed_transition.add(ids)
+                    print("transition")
+                    t1_transition(verts[i], verts[(i + 1) % len(verts)], data)
+                    t1_transition_check(data, completed_transition)
+                    break
+        
+
+
+def t1_transition(v1, v2, data):
+    # print("t1 necessary", v1, v2, geometry.distance_formula_boundary_check(v1,v2,data))
+    if geometry.distance_formula(v1, v2) > data.min_d:
+        v2_prime = geometry.__return_second_vertex(v1, v2, data)
+        v2_prime_obj = vertex.Vertex(v2_prime[0], v2_prime[1])
+        # print(v2_prime_obj)
+        v1_prime = geometry.__return_second_vertex(v2, v1, data)
+        v1_prime_obj = vertex.Vertex(v1_prime[0], v1_prime[1])
+        # print(v1_prime_obj)
+        geometry.rotate_90_degrees(v2, v1_prime_obj, data)
+        geometry.rotate_90_degrees(v1, v2_prime_obj, data)
+        # print(v1, v2_prime_obj, v2, v1_prime_obj)
+    else:
+        geometry.rotate_90_degrees(v2, v1, data)
+    mod_cell_list = [None, None]
+    v = [v1, v2]
+    for i in range(2):
+        for cell in data.vert_adjcent_cells[v[i]]:
+            vert_list = cell.vert_obj_list
+            if v[(i + 1) % 2] not in vert_list:
+                vert_list.insert((vert_list.index(v[i]) + 1) % len(vert_list), v[(i + 1) % 2])
+                mod_cell_list[i] = cell
+                break
+
+    for i in range(2):
+        for cell in data.vert_adjcent_cells[v[i]]:
+            vert_list = cell.vert_obj_list
+            if cell != mod_cell_list[i] and vert_list[(vert_list.index(v[i]) + 1) % len(vert_list)] == v[(i + 1) % 2]:
+                vert_list.remove(v[i])
+                data.vert_adjcent_cells[v[i]].remove(cell)
+                data.vert_adjcent_cells[v[i]].append(mod_cell_list[(i + 1) % 2])
+                break
+
+# def t1_transition_check_v1(data):
+#     done = []
+#     __t1_transition_check_v1(data, done)
+
+# def __t1_transition_check_v1(data, done):
+#     # loop each cell
+#     for cell in data.cell_list:
+#         verts = cell.vert_obj_list
+#         # loop over each edge
+#         for i in range(len(verts)):
+#             # print(len(verts), i, (i+1) % len(verts))
+#             if geometry.distance_formula_boundary_check(verts[i], verts[(i+1) % len(verts)], data) <= data.min_d:
+#                 ids = id(verts[i]) + id(verts[(i+1) % len(verts)])
+#                 if ids not in done:
+#                     done.append(ids)
+#                     t1_transition(verts[i], verts[(i+1) % len(verts)], data)
+#                     __t1_transition_check_v1(data, done)
+#                     return
+#                 # t1_transition_check(data)
+#         # if edge follow suit
+
+# def move_test(vert_list, data):
+#     # vert_list_old = copy.deepcopy(vert_list)
+#     forces = np.zeros([len(vert_list), 2])
+#     forces[forces == 0] = -2.6 / data.dt  
+#     for vert, force in zip(vert_list, forces):
+#         # add force and check for out of bounds
+#         vert.x = (vert.x - force[0] * data.dt) % data.lx
+#         vert.y = (vert.y - force[1] * 0) % data.ly
+#     # check for T1 transitions
+#         # lots of checks 
+#     # set new parameters
+#     # 1. polygons need to get updated
+#     for cell_ in data.cell_list:
+#         cell_.create_cell_polygon()
+
+# def calc_forces_b4(vert_list, data):
+#     forces = []
+#     # loop over all vertices and compute force for each
+#     for v in vert_list:
+#         force = np.zeros(2)
+#         # use list of cells that corresponds to each vertex
+#         comp_cells = data.vert_adjcent_cells[v]
+#         # loop over each cell in list of cells corresponding to vertex
+#         # and calc force from each
+#         for i in range(len(comp_cells)):
+#             # find shared edges between current cell and two cells that share
+#             # the center vertex with it
+#             # ASSUMPTION: each cell only borders 2 other cells that shared the
+#             #    main vertex
+#             s1 = geometry.find_shared_edge(comp_cells[i], comp_cells[(i + 1) % len(comp_cells)], v)
+#             s2 = geometry.find_shared_edge(comp_cells[i], comp_cells[(i + 2) % len(comp_cells)], v)
+#             # calculate da/dhijk
+#             # calculate length of shared edge between 2 other cells
+#             l1 = geometry.distance_formula_boundary_check(s1[0], s1[1], data)
+#             l2 = geometry.distance_formula_boundary_check(s2[0], s2[1], data)
+#             # calculate midpoint between two vertices of the shared edge of each
+#             # of the 2 other cells
+#             # this is used to help calculate unit vector
+#             # mp1 = geometry.midpoint_formula_boundary_check(s1[0], s1[1])
+#             # mp2 = geometry.midpoint_formula_boundary_check(s2[0], s2[1])
+#             # calculate unit vector pointing away from the center of the cell
+#             # that is perpendicular with the shared edge
+#             # the line connecting the center of cells is always perp to edge
+#             center_vertex1 = comp_cells[i].center
+#             center_vertex1[0] %= data.lx
+#             center_vertex1[1] %= data.ly
+#             center_vertex2 = comp_cells[(i + 1) % len(comp_cells)].center
+#             center_vertex2[0] %= data.lx
+#             center_vertex2[1] %= data.ly
+#             center_vertex3 = comp_cells[(i + 2) % len(comp_cells)].center
+#             center_vertex3[0] %= data.lx
+#             center_vertex3[1] %= data.ly
+#             n1 = geometry.unit_vector_boundary_check(center_vertex1, center_vertex2, data)
+#             n2 = geometry.unit_vector_boundary_check(center_vertex1, center_vertex3, data)
+            
+#             # equation from paper
+#             da = 1 / 2 * (l1 * n1 + l2 * n2)
+#             # calculate dp/dhijk
+#             # calculate the unit vector pointing from the center vertex to the 
+#             # other vertices making up the shared edges between current cell
+#             t1 = geometry.unit_vector_boundary_check(v, s1[1], data)
+#             t2 = geometry.unit_vector_boundary_check(v, s2[1], data)
+#             if v == data.v: # TEST
+#                 print("T Vectors:")
+#                 print(t1)
+#                 print(t2)
+#             # equation from paper
+#             dp = -1 * (t1 + t2)
+#             if v == data.v: # TEST
+#                 print("dp:")
+#                 print(n1)
+#                 print(n2)
+#             # calculate force from specific cell
+#             # equation from paper
+#             de = (
+#                 2 * data.KA * (comp_cells[i].area - data.A0) * da + 
+#                 2 * data.KP * (comp_cells[i].perimeter - data.P0) * dp
+#                 )
+#             force += de
+#             if v == data.v: # TEST
+#                 print("de:")
+#                 print(de)
+#         forces.append(force)
+#     return forces
