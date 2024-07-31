@@ -97,25 +97,25 @@ def calc_energy(data):
         
     return total_energy
 
-def t1_transition_check_beta(data):
-    # find all necessary transitions
-    to_transition = {}
-    # loop each cell
-    for cell in data.cell_list:
-        verts = cell.vert_obj_list
-        # loop over each edge
-        for i in range(len(verts)):
-            # print(len(verts), i, (i+1) % len(verts))
-            if geometry.distance_formula_boundary_check(verts[i], verts[(i+1) % len(verts)], data) <= data.min_d:
-                ids = id(verts[i]) + id(verts[(i+1) % len(verts)])
-                if ids not in to_transition:
-                    to_transition[ids] = (verts[i],  verts[(i+1) % len(verts)])
+# def t1_transition_check_beta(data):
+#     # find all necessary transitions
+#     to_transition = {}
+#     # loop each cell
+#     for cell in data.cell_list:
+#         verts = cell.vert_obj_list
+#         # loop over each edge
+#         for i in range(len(verts)):
+#             # print(len(verts), i, (i+1) % len(verts))
+#             if geometry.distance_formula_boundary_check(verts[i], verts[(i+1) % len(verts)], data) <= data.min_d:
+#                 ids = id(verts[i]) + id(verts[(i+1) % len(verts)])
+#                 if ids not in to_transition:
+#                     to_transition[ids] = (verts[i],  verts[(i+1) % len(verts)])
 
-    # perform transitions
-    # print(to_transition)
-    for edge in to_transition:
-        verts = to_transition[edge]
-        t1_transition(verts[0], verts[1], data)
+#     # perform transitions
+#     # print(to_transition)
+#     for edge in to_transition:
+#         verts = to_transition[edge]
+#         t1_transition(verts[0], verts[1], data)
 
 def t1_transition_check(data, completed_transition):
     # loop each cell
@@ -134,7 +134,6 @@ def t1_transition_check(data, completed_transition):
                 ids = id(verts[i]) + id(verts[(i + 1) % len(verts)])
                 if ids not in completed_transition:
                     completed_transition.add(ids)
-                    print("transition")
                     t1_transition(verts[i], verts[(i + 1) % len(verts)], data)
                     t1_transition_check(data, completed_transition)
                     break

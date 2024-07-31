@@ -5,7 +5,7 @@ import h5py
 
 def graph_frame(ax, vertices, edges, lx, ly, color = "black"):
     graph_lines(ax, edges, lx, ly, color)
-    graph_points(ax, vertices)
+    # graph_points(ax, vertices)
 
 def graph_lines(ax, edges, lx, ly, color="black"):
     """
@@ -76,7 +76,7 @@ def plot_data(path, stepsize=10):
         print("No File Found")
         return
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize = (6,6))
 
     # Set limits for x and y axis
     ax.set_xlim(0, lx)

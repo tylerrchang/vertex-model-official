@@ -97,13 +97,12 @@ def unit_vector_boundary_check(v1, v2, data):
 
 def find_shared_edge(cell1, cell2, v1):
     # print(cell1, cell2)
-    if cell1 == None or cell2 == None:
-        print(cell1, cell2)
     for cell1_vert in cell1.vert_obj_list:
         if cell1_vert != v1:
             for cell2_vert in cell2.vert_obj_list:
                 if cell1_vert == cell2_vert:
                     return (v1, cell1_vert)
+    # there should always be an edge
     raise ValueError
 
 def unit_vector_perp_to_edge(edge_vector, center_vector, data):

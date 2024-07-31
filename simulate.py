@@ -55,9 +55,17 @@ def run_active_vertex_model(
         print("No file found: cell_indices")
         return None
 
-    cell_array = np.array(data, dtype = int)
+    # cell_array = np.array(data, dtype = int)
+    # using list so can use jagged array for starting conditions
+    # ie cells can start with different number of vertices
+    cell_list = []
+    for row in data:
+        to_add = []
+        for num in row:
+            to_add.append(int(num))
+        cell_list.append(to_add)
 
-    data = data_holder.Data_Holder(vertex_array, cell_array, \
+    data = data_holder.Data_Holder(vertex_array, cell_list, \
                                     KA = KA, \
                                     KP = KP, dt = dt, D = D, \
                                     v0 = v0, max_time = max_time, p0 = p0)
@@ -93,12 +101,15 @@ def run_active_vertex_model(
         verts.attrs["curr_time"] = curr_time
 
     # move vertices and save other steps
+    # movement.t1_transition_check_beta(data)
+    movement.t1_transition_check(data, set())
     while curr_time < data.max_time:
         print(curr_time)
         step += 1
         curr_time += data.dt
         movement.move_vertices(data.vert_list, data)
-        movement.t1_transition_check_beta(data)
+        # movement.t1_transition_check_beta(data)
+        movement.t1_transition_check(data, set())
         positions = np.array([[v[0], v[1]] for v in data.vert_list]) #
         with h5py.File(output_filepath, "a") as f:
             # save vertices
