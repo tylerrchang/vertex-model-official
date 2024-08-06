@@ -90,6 +90,7 @@ def plot_data(path, stepsize=10):
         with h5py.File(path, "r") as f:
             dset = f["step_00000/edges"]
             j = f["step_00000/vertices"]
+            # j = f["step_00000/cell_centers"] # to plot centers
             lx = f["step_00000/vertices"].attrs["lx"]
             ly = f["step_00000/vertices"].attrs["ly"]
             graph_frame(ax, j, dset, lx, ly)
@@ -100,6 +101,7 @@ def plot_data(path, stepsize=10):
         with h5py.File(path, "r") as f:
             dset = f[f"step_{i:05d}/edges"]
             j = f[f"step_{i:05d}/vertices"]
+            # j = f[f"step_{i:05d}/cell_centers"] # to plot centers
             lx = f[f"step_{i:05d}/vertices"].attrs["lx"]
             ly = f[f"step_{i:05d}/vertices"].attrs["ly"]
             ax.set_xlim(0.1, lx)

@@ -54,6 +54,23 @@ def __return_second_vertex(v1, v2, data):
             next_vertex[1] = v2[1] - data.lx
     return next_vertex
 
+
+def return_second_vertex(v1, v2, data):
+    next_vertex = [v2[0], v2[1]]
+    # check if either boundary is broken
+    if abs(v1[0] - v2[0]) > data.lx / 2:
+        if v1[0] > v2[0]:
+            next_vertex[0] = v2[0] + data.lx
+        else:
+            next_vertex[0] = v2[0] - data.lx
+    if abs(v1[1] - v2[1]) > data.ly / 2:
+        if v1[1] > v2[1]:
+            next_vertex[1] = v2[1] + data.lx
+        else:
+            next_vertex[1] = v2[1] - data.lx
+    return next_vertex
+
+
 def distance_formula(v1, v2):
     return ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 ) ** (1 / 2)
 

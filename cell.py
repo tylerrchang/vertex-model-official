@@ -14,14 +14,15 @@ class Cell:
         self.rand_move_vector = [self.data.v0 * math.cos(self.theta), 
                                  self.data.v0 * math.sin(self.theta)]
         # sets fake_polygon, area, and perimeter
+        self.total_movement = None
         self.create_cell_polygon()
-    
+
     def __str__(self):
         return(f"Polygon with vertices: {self.vert_obj_list}")
-    
+
     def __repr__(self):
         return self.__str__()
-    
+
     def create_cell_polygon(self):
         """
         Creates polygon, calculates area and perimeter
@@ -38,7 +39,7 @@ class Cell:
         for i in range(len(coords)):
             area += coords[i][0] * coords[(i + 1) % len(coords)][1] - coords[i][1] * coords[(i + 1) % len(coords)][0]
         self.area = abs(area) / 2.0
-    
+
     def __calc_perimeter(self):
         perimeter = 0
         for i in range(len(self.fake_polygon) - 1):
@@ -55,14 +56,23 @@ class Cell:
         for v in self.fake_polygon:
             x += v[0]
             y += v[1]
+        if self.total_movement != None:
+            old_center = self.center
         self.center = np.array([x, y]) / len(self.fake_polygon)
+        if self.total_movement != None:
+            old_center_prime = geometry.return_second_vertex(self.center, old_center, self.data)
+            increment = [self.center[0] - old_center_prime[0], self.center[1] - old_center[1]]
+            self.total_movement[0] += increment[0]
+            self.total_movement[1] += increment[1]
+        else:
+            self.total_movement = [0,0]
 
     def get_area(self):
         return self.area
 
     def get_perimeter(self):
         return self.perimeter
-    
+
     def __calc_rand(self):
         # made it -1 to 1 so cell can rotate either direction
         self.theta = (self.theta + (np.random.uniform(-1, 1) * \
@@ -70,4 +80,3 @@ class Cell:
                     ) % (2 * math.pi)
         self.rand_move_vector = [self.data.v0 * math.cos(self.theta), 
                                  self.data.v0 * math.sin(self.theta)]
-            

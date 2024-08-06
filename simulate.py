@@ -72,7 +72,7 @@ def run_active_vertex_model(
 
     curr_time = 0
     step = 0
-    
+
     # define parameters to save in addition to vertices
     attrs = ["cell_list", "vert_adjcent_cells", "vert_list"]
     attrs_to_save = [attr for attr in dir(data) \
@@ -99,6 +99,13 @@ def run_active_vertex_model(
         verts.attrs["energy"] = movement.calc_energy(data)
         verts.attrs["step"] = step
         verts.attrs["curr_time"] = curr_time
+        # save original cell centers
+        path = os.path.join(f"step_{step:05d}", "cell_centers")
+        cell_center_list = []
+        for cell in data.cell_list:
+            center = cell.total_movement
+            cell_center_list.append([center[0], center[1]])
+        f.create_dataset(path, data=cell_center_list)
 
     # move vertices and save other steps
     # movement.t1_transition_check_beta(data)
@@ -132,21 +139,13 @@ def run_active_vertex_model(
             verts.attrs["energy"] = movement.calc_energy(data)
             verts.attrs["step"] = step
             verts.attrs["curr_time"] = curr_time
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            # save original cell centers
+            path = os.path.join(f"step_{step:05d}", "cell_centers")
+            cell_center_list = []
+            for cell in data.cell_list:
+                center = cell.total_movement
+                cell_center_list.append([center[0], center[1]])
+            f.create_dataset(path, data=cell_center_list)
 
     #############
     # Just verts --- this works
