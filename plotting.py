@@ -64,7 +64,7 @@ def graph_points(ax, vertices):
     vertices = list of lists with each row being a vertex and each column
     being an x or y coordinate
     """
-    ax.scatter(vertices[:, 0], vertices[:, 1])
+    ax.scatter(vertices[:, 0], vertices[:, 1], color = "r")
 
 def plot_data(path, stepsize=10):
     try:
@@ -79,8 +79,8 @@ def plot_data(path, stepsize=10):
     fig, ax = plt.subplots(figsize = (6,6))
 
     # Set limits for x and y axis
-    ax.set_xlim(0, lx)
-    ax.set_ylim(0, ly)
+    ax.set_xlim(0.1, lx)
+    ax.set_ylim(0.1, ly)
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -102,8 +102,8 @@ def plot_data(path, stepsize=10):
             j = f[f"step_{i:05d}/vertices"]
             lx = f[f"step_{i:05d}/vertices"].attrs["lx"]
             ly = f[f"step_{i:05d}/vertices"].attrs["ly"]
-            ax.set_xlim(0, lx)
-            ax.set_ylim(0, ly)
+            ax.set_xlim(0.1, lx)
+            ax.set_ylim(0.1, ly)
             ax.set_xticks([])
             ax.set_yticks([])
             graph_frame(ax, j, dset, lx, ly)

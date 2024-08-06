@@ -5,3 +5,6 @@ __pycache__/
 sample_videos/
 *.csv
 *.hdf5
+animations/
+practiceNN
+figures
