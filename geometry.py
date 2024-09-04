@@ -1,28 +1,26 @@
-import vertex
-import data_holder
 import numpy as np
 
-def __vertex_boundary_check(v1, v2, data):
-    """
-    DEPRECIATED
+# def __vertex_boundary_check(v1, v2, data):
+#     """
+#     DEPRECIATED
     
-    Takes 2 vertices and returns a list vertex of the second vertex if it
-    needs adjustment
+#     Takes 2 vertices and returns a list vertex of the second vertex if it
+#     needs adjustment
 
     
-    vvvvvvvvvvvvv
-    Used Strictly for polygon!!!
-    ^^^^^^^^^^^^^^^^^^
+#     vvvvvvvvvvvvv
+#     Used Strictly for polygon!!!
+#     ^^^^^^^^^^^^^^^^^^
 
-    """
-    next_vertex = [v2[0], v2[1]]
+#     """
+#     next_vertex = [v2[0], v2[1]]
     
-    if abs(v1[0] - v2[0]) > data.lx / 2:
-        next_vertex[0] = abs(next_vertex[0] - data.lx)
-    if abs(v1[1] - v2[1]) > data.ly / 2:
-        next_vertex[1] = abs(next_vertex[1] - data.ly)
+#     if abs(v1[0] - v2[0]) > data.lx / 2:
+#         next_vertex[0] = abs(next_vertex[0] - data.lx)
+#     if abs(v1[1] - v2[1]) > data.ly / 2:
+#         next_vertex[1] = abs(next_vertex[1] - data.ly)
 
-    return next_vertex
+#     return next_vertex
 
 def create_polygon(vert_list, data):
     """

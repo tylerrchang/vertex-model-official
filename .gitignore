@@ -8,3 +8,6 @@ animations/
 practiceNN
 figures
 initial_conditions/
+output
+output_vm
+multiple_outputs

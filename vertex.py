@@ -1,3 +1,6 @@
+"""
+A class for storing vertex objects that comprise the cells
+"""
 class Vertex:
     def __init__(self, x, y):
         self.x = x
