@@ -30,6 +30,7 @@
 ## Using Simulations
 - the simulation can be run from the command line using `python main.py ...` where `...` can be replaced by the required arguments
 - a full example of how to run can be see in `run_job.sbatch`
+- example run: `python main.py --diffusion=1 --vertices=starting_conditions/s2/vertices_big.csv --cells=starting_conditions/s2/cell_indices_big.csv --save_dir=output --step_size=0.001 --propulsion=1.0 --total_time=1 --shape_index=2 --save_name output_test3.hdf5`
 
 ## Notes
 - the simulation is inconsitent when shape index (p0) > 3.9
