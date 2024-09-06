@@ -17,8 +17,14 @@ if __name__ == '__main__':
                     help="how large each step")
     ap.add_argument("--total_time", type=float, required=True, 
                     help="total number of steps")
+    # in save directory location, if there is no folder with the same name, 
+    # a new directory will be created. Otherwise, the directory with the correct
+    # name will be used
     ap.add_argument("--save_dir", type=str, required=True, 
                     help="where file will be saved")
+    # the name of the actual output hdf5 file
+    # if running a batch you would probably change this parameter but keep the
+    # save director file the same
     ap.add_argument("--save_name", type=str, required=True, 
                     help="name of output file")
     ap.add_argument("--vertices", type=str, required=True, 
