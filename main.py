@@ -1,6 +1,5 @@
 import argparse
 import os
-import numpy as np
 
 import simulate
 
@@ -16,7 +15,7 @@ if __name__ == '__main__':
                     help="Shape index of cells, increasing makes more elliptical")
     ap.add_argument("--step_size", type=float, required=True, 
                     help="how large each step")
-    ap.add_argument("--total_time", type=int, required=True, 
+    ap.add_argument("--total_time", type=float, required=True, 
                     help="total number of steps")
     ap.add_argument("--save_dir", type=str, required=True, 
                     help="where file will be saved")

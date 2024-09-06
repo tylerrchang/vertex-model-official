@@ -5,7 +5,6 @@ import h5py
 
 def graph_frame(ax, vertices, edges, lx, ly, color = "black"):
     graph_lines(ax, edges, lx, ly, color)
-    
     # uncomment line to graph vertices in addition to edges
     # graph_points(ax, vertices)
 

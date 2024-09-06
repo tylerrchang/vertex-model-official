@@ -1,30 +1,15 @@
 import numpy as np
 
-# def __vertex_boundary_check(v1, v2, data):
-#     """
-#     DEPRECIATED
-    
-#     Takes 2 vertices and returns a list vertex of the second vertex if it
-#     needs adjustment
-
-    
-#     vvvvvvvvvvvvv
-#     Used Strictly for polygon!!!
-#     ^^^^^^^^^^^^^^^^^^
-
-#     """
-#     next_vertex = [v2[0], v2[1]]
-    
-#     if abs(v1[0] - v2[0]) > data.lx / 2:
-#         next_vertex[0] = abs(next_vertex[0] - data.lx)
-#     if abs(v1[1] - v2[1]) > data.ly / 2:
-#         next_vertex[1] = abs(next_vertex[1] - data.ly)
-
-#     return next_vertex
+"""
+Defined multiple useful functions related to calculations on vertices and cells
+"""
 
 def create_polygon(vert_list, data):
     """
     Takes list of vertex objects and creates a polygon in list of list format
+    where the inner list is a vertex position
+
+    The "fake polygon" has the same shape as the original polygon but it is not stretched over a boundary
     """
 
     vertices = []
@@ -33,28 +18,35 @@ def create_polygon(vert_list, data):
         vertices.append([v[0], v[1]])
 
     for i in range(len(vertices) - 1):
-        vertices[i + 1] = __return_second_vertex(vertices[i], vertices[i + 1], data)
+        vertices[i + 1] = return_second_vertex(vertices[i], vertices[i + 1], data)
     
     return vertices
 
-def __return_second_vertex(v1, v2, data):
-    next_vertex = [v2[0], v2[1]]
-    # check if either boundary is broken
-    if abs(v1[0] - v2[0]) > data.lx / 2:
-        if v1[0] > v2[0]:
-            next_vertex[0] = v2[0] + data.lx
-        else:
-            next_vertex[0] = v2[0] - data.lx
-    if abs(v1[1] - v2[1]) > data.ly / 2:
-        if v1[1] > v2[1]:
-            next_vertex[1] = v2[1] + data.lx
-        else:
-            next_vertex[1] = v2[1] - data.lx
-    return next_vertex
+# def __return_second_vertex(v1, v2, data):
+#     """
+#     Used to create a polygon"""
+#     next_vertex = [v2[0], v2[1]]
+
+#     # check if either boundary is broken
+#     if abs(v1[0] - v2[0]) > data.lx / 2:
+#         if v1[0] > v2[0]:
+#             next_vertex[0] = v2[0] + data.lx
+#         else:
+#             next_vertex[0] = v2[0] - data.lx
+#     if abs(v1[1] - v2[1]) > data.ly / 2:
+#         if v1[1] > v2[1]:
+#             next_vertex[1] = v2[1] + data.lx
+#         else:
+#             next_vertex[1] = v2[1] - data.lx
+#     return next_vertex
 
 
 def return_second_vertex(v1, v2, data):
+    """
+    Used to create polygon and calculate the total movement of the cell
+    """
     next_vertex = [v2[0], v2[1]]
+
     # check if either boundary is broken
     if abs(v1[0] - v2[0]) > data.lx / 2:
         if v1[0] > v2[0]:
@@ -73,6 +65,9 @@ def distance_formula(v1, v2):
     return ((v1[0] - v2[0]) ** 2 + (v1[1] - v2[1]) ** 2 ) ** (1 / 2)
 
 def distance_formula_boundary_check(v1, v2, data):
+    """
+    Calculates distance between 2 points considering boundary conditions
+    """
     # compute distance between points
     xdist = v1[0] - v2[0]
     ydist = v1[1] - v2[1]
@@ -93,7 +88,7 @@ def distance_formula_boundary_check(v1, v2, data):
 
 def unit_vector_boundary_check(v1, v2, data):
     """
-    from v1 to v2
+    calculates unit vector from v1 to v2
     """
     temp = v1
     v1 = v2
@@ -111,7 +106,17 @@ def unit_vector_boundary_check(v1, v2, data):
     return vector / magnitude
 
 def find_shared_edge(cell1, cell2, v1):
-    # print(cell1, cell2)
+    """
+    Calculates the edge shared between two cells that contains the vertex passed
+    the function
+
+    In practice, only called in instances where cells share a vertex
+
+    if cell1 is [v1, v2, v3, v4]
+    if cell2 is [v1, v2, v5, v6]
+
+    find_shared_edge(cell1, cell2, v1) returns (v1, v2)
+    """
     for cell1_vert in cell1.vert_obj_list:
         if cell1_vert != v1:
             for cell2_vert in cell2.vert_obj_list:
@@ -122,7 +127,9 @@ def find_shared_edge(cell1, cell2, v1):
 
 def unit_vector_perp_to_edge(edge_vector, center_vector, data):
     """
-    Takes a unit vector and rotates it 90 degrees, pointing outward from the center of the polygon.
+    Calculates an edge's normal vector. The resulting normal vector points away
+    from the center of the polygon
+
     Only used for polygons
     """
     # cross product of unit_vector and +z
@@ -132,15 +139,19 @@ def unit_vector_perp_to_edge(edge_vector, center_vector, data):
     new_vec = np.array([x, y]) * - (-1 if dot_prod < 0 else 1)
     return new_vec
 
-# rotate 90 degrees
-# https://stackoverflow.com/questions/45701615/how-can-i-rotate-a-line-segment-around-its-center-by-90-degrees
-# find the center
+
+
 def rotate_90_degrees(v1, v2, data):
+    """
+    Rotates two vertices 90 degrees counterclockwise. Used in t1 transitions.
+    https://stackoverflow.com/questions/45701615/how-can-i-rotate-a-line-segment-around-its-center-by-90-degrees
+    """
     x1 = v1[0]
     x2 = v2[0]
     y1 = v1[1]
     y2 = v2[1]
 
+    # find the center
     cx = (x1+x2)/2
     cy = (y1+y2)/2
 

@@ -1,19 +1,10 @@
 """
 Imports
 """
-
-import matplotlib.pyplot as plt
 import os
 import numpy as np
-import parsing
-import copy
-import vertex
-import time
 import movement
-import cell
-import geometry
 import data_holder
-import math
 import h5py
 import csv
 
